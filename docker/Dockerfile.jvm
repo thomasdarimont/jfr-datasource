@@ -28,14 +28,19 @@ FROM fedora:32
 
 RUN mkdir /tmp/jdk \
      && cd /tmp/jdk \
-     && curl -O https://download.java.net/java/GA/jdk14.0.2/205943a0976c4ed48cb16f1043c5c647/12/GPL/openjdk-14.0.2_linux-x64_bin.tar.gz \
-     && tar -xvf openjdk-14.0.2_linux-x64_bin.tar.gz
+     && curl --output openjdk-17_linux-x64_bin.tar.gz https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz \
+     && tar xzf openjdk-17_linux-x64_bin.tar.gz \
+     && rm -f openjdk-17_linux-x64_bin.tar.gz
 
-COPY server/target/lib/* /deployments/lib/
-COPY server/target/*-runner.jar /deployments/app.jar
+#COPY server/target/lib/* /deployments/lib/
+#COPY server/target/*-runner.jar /deployments/app.jar
+COPY --chown=1001 target/quarkus-app/lib/ /deployments/lib/
+COPY --chown=1001 target/quarkus-app/*.jar /deployments/
+COPY --chown=1001 target/quarkus-app/app/ /deployments/app/
+COPY --chown=1001 target/quarkus-app/quarkus/ /deployments/quarkus/
 EXPOSE 8080
 
 # run with user 1001
 # USER 1001
 
-ENTRYPOINT [ "/tmp/jdk/jdk-14.0.2/bin/java", "-jar", "/deployments/app.jar", "-Dquarkus.http.host=0.0.0.0", "-Djava.util.logging.manager=org.jboss.logmanager.LogManager" ]
+ENTRYPOINT [ "/tmp/jdk/jdk-17/bin/java", "-jar", "/deployments/app.jar", "-Dquarkus.http.host=0.0.0.0", "-Djava.util.logging.manager=org.jboss.logmanager.LogManager" ]

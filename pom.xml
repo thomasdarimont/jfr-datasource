@@ -7,26 +7,23 @@
   <name>JFR Datasource</name>
 
   <properties>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <compiler-plugin.version>3.8.1</compiler-plugin.version>
+    <maven.compiler.parameters>true</maven.compiler.parameters>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-    <maven-failsafe-plugin.version>2.22.1</maven-failsafe-plugin.version>
-    <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
-    <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-
-    <java.version>11</java.version>
-    <junit.version>5.5.1</junit.version>
-    <rest-assured.version>3.0.0</rest-assured.version>
-
-    <jmc.core.version>7.1.0-SNAPSHOT</jmc.core.version>
-
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-    <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-    <quarkus.platform.version>1.11.0.Final</quarkus.platform.version>
-    <quarkus-plugin.version>1.11.0.Final</quarkus-plugin.version>
+    <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
+    <quarkus.platform.version>2.2.2.Final</quarkus.platform.version>
+    <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
+
+    <rest-assured.version>3.0.0</rest-assured.version>
+    <jmc.core.version>8.1.0</jmc.core.version>
 
     <org.owasp.dependency.check.version>6.0.5</org.owasp.dependency.check.version>
     <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
+    <dependency-check-maven.version>3.3.4</dependency-check-maven.version>
   </properties>
 
   <dependencyManagement>
@@ -69,7 +66,7 @@
     <dependency>
       <groupId>io.rest-assured</groupId>
       <artifactId>rest-assured</artifactId>
-      <version>${rest-assured.version}</version>
+      <version>4.3.3</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -100,7 +97,6 @@
           <plugin>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-maven-plugin</artifactId>
-            <version>${quarkus-plugin.version}</version>
             <executions>
               <execution>
                 <goals>
@@ -118,7 +114,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
-            <version>${maven-failsafe-plugin.version}</version>
             <executions>
               <execution>
                 <goals>
@@ -146,7 +141,7 @@
           <plugin>
             <groupId>org.owasp</groupId>
             <artifactId>dependency-check-maven</artifactId>
-            <version>${org.owasp.dependency.check.version}</version>
+            <version>${dependency-check-maven.version}</version>
             <configuration>
               <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
               <suppressionFiles>
@@ -171,34 +166,35 @@
   <build>
     <plugins>
       <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven-compiler-plugin.version}</version>
-        <configuration>
-          <fork>true</fork>
-          <meminitial>128m</meminitial>
-          <maxmem>1024m</maxmem>
-          <release>${java.version}</release>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>io.quarkus</groupId>
+        <groupId>${quarkus.platform.group-id}</groupId>
         <artifactId>quarkus-maven-plugin</artifactId>
-        <version>${quarkus-plugin.version}</version>
+        <version>${quarkus.platform.version}</version>
+        <extensions>true</extensions>
         <executions>
           <execution>
             <goals>
               <goal>build</goal>
+              <goal>generate-code</goal>
+              <goal>generate-code-tests</goal>
             </goals>
           </execution>
         </executions>
       </plugin>
       <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>${maven-surefire-plugin.version}</version>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${compiler-plugin.version}</version>
         <configuration>
-          <systemProperties>
+          <parameters>${maven.compiler.parameters}</parameters>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${surefire-plugin.version}</version>
+        <configuration>
+          <systemPropertyVariables>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-          </systemProperties>
+            <maven.home>${maven.home}</maven.home>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
       <!-- Attach Quarkus runner jar to build: https://stackoverflow.com/a/64808544 -->
